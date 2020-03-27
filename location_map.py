@@ -1,4 +1,5 @@
 import argparse
+import csv
 
 import googlemaps
 
@@ -36,16 +37,31 @@ class LocationMap():
         return results
 
 
+def load_zip_code_data():
+    zips = dict()
+    with open('data/uszips.csv', newline='') as csvfile:
+        reader = csv.DictReader(csvfile)
+        for row in reader:
+            zip_code = row.pop('zip')
+            zips[zip_code] = dict(row)
+    return zips
+
+
 if __name__ == '__main__':
 
     parser = argparse.ArgumentParser(description='do things')
     parser.add_argument('-k', '--key', dest='google_key', help='google key')
     args = parser.parse_args()
 
-    gmaps = googlemaps.Client(key=args.google_key)
-    lm = LocationMap(gmaps=gmaps)
+    zip_code_data = load_zip_code_data()
+    print(zip_code_data)
 
-    from pprint import pprint
-    locations = lm.get_locations(query='illinois hospitals')  # hospitals
-    for location in locations:
-        print(f"{location['name']} is {round(lm.get_travel_time('Ohare airport', location['formatted_address']))} mins from Ohare")
+
+    #
+    # gmaps = googlemaps.Client(key=args.google_key)
+    # lm = LocationMap(gmaps=gmaps)
+    #
+    # from pprint import pprint
+    # locations = lm.get_locations(query='illinois hospitals')  # hospitals
+    # for location in locations:
+    #     print(f"{location['name']} is {round(lm.get_travel_time('Ohare airport', location['formatted_address']))} mins from Ohare")
