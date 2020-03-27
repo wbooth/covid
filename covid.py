@@ -8,7 +8,7 @@ from datetime import datetime
 import googlemaps
 
 
-class LocationMap():
+class LocationMap:
     def __init__(self, gmaps):
         self.gmaps = gmaps
 
@@ -44,26 +44,37 @@ class LocationMap():
 
 
 def load_zip_code_data():
-    zips = dict()
+    """
+
+    :return:
+    """
     with open('data/uszips.csv', newline='') as csvfile:
         reader = csv.DictReader(csvfile)
-        for row in reader:
-            zip_code = row.pop('zip')
-            zips[zip_code] = dict(row)
-    return zips
+        return [dict(row) for row in reader]
 
 
 def load_covid_cases_data():
+    """
+    :return:
+        {'Active': '0',
+      'Admin2': 'Abbeville',
+      'Combined_Key': 'Abbeville, South Carolina, US',
+      'Confirmed': '3',
+      'Country_Region': 'US',
+      'Deaths': '0',
+      'Last_Update': '2020-03-26 23:48:35',
+      'Lat': '34.22333378',
+      'Long_': '-82.46170658',
+      'Province_State': 'South Carolina',
+      'Recovered': '0',
+      'FIPS' '06059}
+    """
     today = datetime.today().strftime('%m-%d-%Y')
     data = requests.get(f'https://raw.githubusercontent.com/CSSEGISandData/COVID-19/master/csse_covid_19_data/csse_covid_19_daily_reports/{today}.csv')
 
     f = StringIO(data.text)
     reader = csv.DictReader(f, delimiter=',')
-    covid_cases = []
-    for row in reader:
-        row.pop('FIPS')
-        covid_cases.append(dict(row))
-    return covid_cases
+    return [dict(row) for row in reader]
 
 
 if __name__ == '__main__':
@@ -72,17 +83,15 @@ if __name__ == '__main__':
     parser.add_argument('-k', '--key', dest='google_key', help='google key')
     args = parser.parse_args()
 
-    # zip_code_data = load_zip_code_data()
-    # print(zip_code_data)
-    # print(len(zip_code_data.keys()))
+    zip_code_data = load_zip_code_data()
+    covid_cases = load_covid_cases_data()
+
+    gmaps = googlemaps.Client(key=args.google_key)
+    lm = LocationMap(gmaps=gmaps)
 
     from pprint import pprint
-    pprint(load_covid_cases_data())
+    locations = lm.get_locations(query='illinois hospitals')  # hospitals
+    for location in locations:
+        print(f"{location['name']} is {round(lm.get_travel_time('Ohare airport', location['formatted_address']))} mins from Ohare")
 
-    # gmaps = googlemaps.Client(key=args.google_key)
-    # lm = LocationMap(gmaps=gmaps)
-    #
-    # from pprint import pprint
-    # locations = lm.get_locations(query='illinois hospitals')  # hospitals
-    # for location in locations:
-    #     print(f"{location['name']} is {round(lm.get_travel_time('Ohare airport', location['formatted_address']))} mins from Ohare")
+
