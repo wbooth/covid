@@ -1,5 +1,9 @@
 import argparse
 import csv
+import requests
+from io import StringIO
+
+from datetime import datetime
 
 import googlemaps
 
@@ -47,17 +51,32 @@ def load_zip_code_data():
     return zips
 
 
+def load_covid_cases_data():
+    today = datetime.today().strftime('%m-%d-%Y')
+    data = requests.get(f'https://raw.githubusercontent.com/CSSEGISandData/COVID-19/master/csse_covid_19_data/csse_covid_19_daily_reports/{today}.csv')
+
+    f = StringIO(data.text)
+    reader = csv.DictReader(f, delimiter=',')
+    covid_cases = []
+    for row in reader:
+        row.pop('FIPS')
+        covid_cases.append(dict(row))
+    return covid_cases
+
+
 if __name__ == '__main__':
 
     parser = argparse.ArgumentParser(description='do things')
     parser.add_argument('-k', '--key', dest='google_key', help='google key')
     args = parser.parse_args()
 
-    zip_code_data = load_zip_code_data()
-    print(zip_code_data)
+    # zip_code_data = load_zip_code_data()
+    # print(zip_code_data)
+    # print(len(zip_code_data.keys()))
 
+    from pprint import pprint
+    pprint(load_covid_cases_data())
 
-    #
     # gmaps = googlemaps.Client(key=args.google_key)
     # lm = LocationMap(gmaps=gmaps)
     #
