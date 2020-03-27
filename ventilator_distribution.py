@@ -4,6 +4,7 @@ import pandas as pd
 import random
 from covid import LocationMap
 
+ROUND_DISTANCE_TIME = 1440   # unit is mins so a day=1440
 
 
 def amount_to_transfer(need, avail):
@@ -18,8 +19,8 @@ def transfer_amount(df, dist, source, dest, amount):
     ''' '''
     df.at[source, 'vent_avail'] = df.at[source, 'vent_avail'] - amount
     df.at[dest, 'vent_need'] = df.at[dest, 'vent_need'] - amount
-    dist[':'.join([source, dest])] = amount
-    print("transfering: {} -> {} - {}".format(source, dest, amount))
+    dist['->'.join([source, dest])] = amount
+    print('transfering: {} -> {} - {}'.format(source, dest, amount))
 
 
 def main():
@@ -48,12 +49,16 @@ def main():
     
     df = pd.DataFrame(data=d)
     df.set_index('location', inplace=True, drop=True)
-
+ 
     # add distance from one location to another for every location in df
-    for loc, row in df.iterrows():
-        for loc1, row1 in df.iterrows():
-            df.at[df.at[loc, loc]] = round(lm.get_distance(loc, loc1) / (60*24))   # round distance times to days
-            #df.at[loc, loc1] = 1
+    locs = df.index.values   # get static list, has issues otherwise
+    for loc in locs:
+        for loc1 in locs:
+            dist = lm.get_distance(loc, loc1)
+            if ROUND_DISTANCE_TIME:
+                dist = round(dist/ROUND_DISTANCE_TIME)
+            df.at[loc, loc1] =  dist
+            #print('---dist from {} to {} is {}'.format(loc, loc1, dist))
     
     print('Data ready for transfer processing:\n {}'.format(df))
     print('---------')
@@ -83,7 +88,12 @@ def main():
                         amount = amount_to_transfer(df.at[dest_loc, 'vent_need'], df.at[loc, 'vent_avail'])
                         transfer_amount(df, dist, loc, dest_loc, amount)
     
-    print('Completed distribution and table: {}\n {}\n'.format(dist, df))
+    print('\n----- Completed -----')
+    print('\nSuggested Distribution\n')
+    for k,v in dist.items():
+        print('    {} {}'.format(k,v))
+    print('\nResulting Table (and remaining need)')
+    print(df)
     print('-------------')
 
 if __name__ == '__main__':
