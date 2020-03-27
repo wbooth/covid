@@ -25,6 +25,8 @@ class LocationMap():
         minutes = seconds / 60.0
         return minutes
 
+    def get_distance(self, source_location, target_location):
+        return round(self.get_travel_time(source_location, target_location))
 
     def get_locations(self, query):
         output = self.gmaps.places(query)
