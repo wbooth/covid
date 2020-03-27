@@ -30,8 +30,8 @@ def main():
     args = parser.parse_args()
 
     # load google map
-    #gmaps = googlemaps.Client(key=args.google_key)
-    #lm = LocationMap(gmaps=gmaps)
+    gmaps = googlemaps.Client(key=args.google_key)
+    lm = LocationMap(gmaps=gmaps)
 
     # read in vent data 
     df_t = pd.read_csv(args.vent_data_file, sep=',')
@@ -52,8 +52,8 @@ def main():
     # add distance from one location to another for every location in df
     for loc, row in df.iterrows():
         for loc1, row1 in df.iterrows():
-            #df.at[df.at[loc, loc]] = round(lm.get_distance(loc, loc1) / (60*24))   # round distance times to days
-            df.at[loc, loc1] = 1
+            df.at[df.at[loc, loc]] = round(lm.get_distance(loc, loc1) / (60*24))   # round distance times to days
+            #df.at[loc, loc1] = 1
     
     print('Data ready for transfer processing:\n {}'.format(df))
     print('---------')
