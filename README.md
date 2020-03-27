@@ -23,8 +23,32 @@ The ventilator distribution algorithm follows a simple strategy of attempting to
     - Next, for each location that has available ventilators, get list of locations that are <DAY_COUNT day away and still have unfulfilled ventilator need.
     - randomly shuffle the list of locations (fairness mechanism, location randomly chooses which location to service first, given the list of locations is all the same distance away
   
+**_Example distribution given 3 locations_**
+```
+Current Ventilator Need:
+               vent_avail  vent_need chicago indianapolis san diego
+location                                                          
+chicago                5         10       0            0         1
+indianapolis          20          5       0            0         1
+san diego              0         15       1            1         0
+---------
 
-prioritize the need by distance. So first locations look to see if they have projected need, then fill from their own stocks. Next, for each location look to all locations within distance of 1 day, then attempt to fill that need. Next, look to all locations with distance of 2 day, then attempt to fill need. By doing this, we optimize the amount of time a ventilator is in use versus in transport.
+----- Completed -----
+
+Suggested Distribution
+
+    chicago->chicago 5
+    indianapolis->indianapolis 5
+    indianapolis->chicago 5
+    indianapolis->san diego 10
+
+Resulting Table (and remaining need)
+              vent_avail  vent_need chicago indianapolis san diego
+location                                                          
+chicago                0          0       0            0         1
+indianapolis           0          0       0            0         1
+san diego              0          5       1            1         0
+```
 
 ## Data Sources
 - us zip codes from: https://simplemaps.com/data/us-zips
