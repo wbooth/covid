@@ -1,12 +1,12 @@
 
 import argparse
 import csv
+from datetime import datetime, timedelta
 import requests
 from io import StringIO
-
-from datetime import datetime, timedelta
-
 import googlemaps
+
+from ventilator_distribution import VentilatorDist
 
 
 class LocationMap:
@@ -150,11 +150,10 @@ def predicted_active_covid_case_count(date, county, covid_data_all=None):
     t_minus_01 = predict_date - timedelta(days=1)
 
 
-
-if __name__ == '__main__':
-
+def main():
     parser = argparse.ArgumentParser(description='do things')
     parser.add_argument('-k', '--key', dest='google_key', help='google key')
+    parser.add_argument('-v', '--vent-data', dest='vent_data_file', help="ventilator data file")
     args = parser.parse_args()
 
     zip_code_data = load_zip_code_data()
@@ -172,3 +171,12 @@ if __name__ == '__main__':
         print(f"{location['name']} is {round(lm.get_travel_time('Ohare airport', location['formatted_address']))} mins from Ohare")
 
 
+    # Run ventilator distribution algorithm
+    #vd = VentilatorDist(args.vent_data_file, lm)
+    #vd.run()
+
+
+
+
+if __name__ == '__main__':
+    main()
