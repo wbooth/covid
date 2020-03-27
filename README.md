@@ -21,7 +21,8 @@ The ventilator distribution algorithm follows a simple strategy of attempting to
   - For every location that is in need of ventilators, look first to fill own need with available ventilators at location.
   - Repeat next sub-steps for DAY_COUNT =[1,2,3] (starting with 1) until available ventilator stock is depleted
     - Next, for each location that has available ventilators, get list of locations that are <DAY_COUNT day away and still have unfulfilled ventilator need.
-    - randomly shuffle the list of locations (fairness mechanism, location randomly chooses which location to service first, given the list of locations is all the same distance away
+    - randomly shuffle the list of locations (fairness mechanism, location randomly chooses which location to service first, given the list of locations is all the same distance away)
+    - iterate through locations and fill as much ventilator need as possible
   
 **_Example distribution given 3 locations_**
 ```
