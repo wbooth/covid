@@ -20,7 +20,7 @@ def transfer_amount(df, dist, source, dest, amount):
     df.at[source, 'vent_avail'] = df.at[source, 'vent_avail'] - amount
     df.at[dest, 'vent_need'] = df.at[dest, 'vent_need'] - amount
     dist['->'.join([source, dest])] = amount
-    print('transfering: {} -> {} - {}'.format(source, dest, amount))
+    #print('transfering: {} -> {} - {}'.format(source, dest, amount))
 
 
 def main():
@@ -60,7 +60,7 @@ def main():
             df.at[loc, loc1] =  dist
             #print('---dist from {} to {} is {}'.format(loc, loc1, dist))
     
-    print('Data ready for transfer processing:\n {}'.format(df))
+    print('\nCurrent Ventilator Need:\n {}'.format(df))
     print('---------')
   
     dist = {}
@@ -71,12 +71,7 @@ def main():
             amount = amount_to_transfer(row['vent_need'], row['vent_avail'])
             transfer_amount(df, dist, loc, loc, amount)
 
-    print('after trying to fulfull from own supply: \n {} \n {}'.format(dist, df))
-    print('---------')
-
     # now distribute rest of free ventilators, prioritizing locations that are close
-    total_free_vents = sum(df['vent_avail'])
-    total_need_vents = sum(df['vent_need'])
     for d in [0,1,2,3]:
         for loc, row in df.iterrows():
             if row['vent_avail'] > 0:
